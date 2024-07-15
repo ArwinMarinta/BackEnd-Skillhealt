@@ -15,27 +15,214 @@ model Auth {
   email         String    @unique
   password      String
   role_id       Int 
+  role          Role      @relation(fields: [role_id], references: [id])
+  user          User[]
+  instansi      Instansi[]
+  doctor        Doctor[]
   created_at    DateTime  @default(now())
+
   @@map("auths")
 }
 
 model Role {
-  id          Int       @id @default(autoincrement())
-  name        String    @db.VarChar(20)
-  created_at  DateTime  @default(now())
+  id            Int         @id @default(autoincrement())
+  name          RoleType
+  auth          Auth[]
+  created_at    DateTime    @default(now())
   
   @@map("roles")
 }
 
 model User {
-  id                Int        id @default(autoincrement())
+  id                Int        @id @default(autoincrement())
+  auth_id           Int
   full_name         String     @db.VarChar(100)
   date_birth        String      
   gender            String
   phone_number      String     @db.VarChar(15)
   image_url         String
-  auth_id           Int
+  queue             Queue[]
+  discussion        Discussion[]
+  lab               Lab[]
+  response          Response[]
+  auth              Auth        @relation(fields: [auth_id], references: [id])
   created_at        DateTime    @default(now())
 
   @@map("users")
+}
+
+model Instansi{
+  id              Int           @id @default(autoincrement())         
+  auth_id         Int
+  name            String        @db.VarChar(150)
+  address         String
+  phone_number    String        @db.VarChar(15)
+  image_url       String
+  doctor          Doctor[]
+  ambulances      Ambulance[]
+  response        Response[]
+  auth            Auth          @relation(fields: [auth_id], references: [id])
+  created_at      DateTime      @default(now())
+
+  @@map("instansis")
+}
+
+model Doctor {  
+  id                          Int         @id @default(autoincrement())
+  auth_id                     Int  
+  spesialis_id                Int
+  instansi_id                 Int
+  name                        String      @db.VarChar(100)
+  phone_number                String      @db.VarChar(15)
+  registration_certificate    String
+  experience                  String      
+  education                   String      @db.Text
+  image_url                   String
+  description                 String      @db.Text
+  status                      Boolean     @default(false)
+  queue                       Queue[]
+  lab                         Lab[]
+  schedule                    Schedule[]
+  comment                     Comment[]
+  spesialis                   Spesialis   @relation(fields: [spesialis_id], references: [id])
+  instansi                    Instansi    @relation(fields: [instansi_id], references: [id])    
+  auth                        Auth        @relation(fields: [auth_id], references: [id]) 
+  created_at                  DateTime    @default(now())
+
+  @@map("doctors")
+}
+
+model Spesialis {
+  id                Int       @id @default(autoincrement())
+  name              String    @db.VarChar(100)
+  description       String    @db.Text
+  doctor            Doctor[]
+  created_at        DateTime    @default(now())
+
+  @@map("spesialis")
+}
+
+model Ambulance {
+  id               Int          @id @default(autoincrement())
+  instansi_id      Int
+  name             String       @db.VarChar(50)
+  police_number    String       @db.VarChar(12)
+  level            LevelType
+  paramedic        String       
+  equipment        String       @db.Text
+  response         Response[]
+  instansi         Instansi     @relation(fields: [instansi_id], references: [id]) 
+  created_at       DateTime     @default(now())
+
+  @@map("ambulances")
+}
+
+model Discussion {
+  id              Int           @id @default(autoincrement())
+  user_id         Int
+  title           String        @db.VarChar(50)
+  question        String        @db.Text
+  comment         Comment[]
+  user            User          @relation(fields: [user_id], references: [id])
+  created_at      DateTime      @default(now())
+
+  @@map("discussions")
+}
+
+
+model Comment {
+  id                  Int           @id @default(autoincrement())
+  doctor_id           Int
+  discussion_id       Int           
+  answer              String        @db.Text
+  doctor              Doctor        @relation(fields: [doctor_id], references: [id])
+  discussion          Discussion    @relation(fields: [discussion_id], references: [id])
+  created_at          DateTime      @default(now())
+
+  @@map("comments")
+}
+
+model Schedule{ 
+  id            Int               @id @default(autoincrement())
+  doctor_id     Int 
+  date          DateTime          
+  type          ScheduleType      
+  status        Boolean           @default(false)
+  price         Int
+  description   String            @db.Text
+  queue         Queue[]
+  doctor        Doctor            @relation(fields: [doctor_id], references: [id])
+  created_at    DateTime          @default(now())
+
+  @@map("schedules")
+}
+
+model Response {
+  id                  Int              @id @default(autoincrement())
+  user_id             Int
+  instansi_id         Int
+  ambulance_id        Int
+  address             String           
+  level               LevelType
+  incident            String           @db.Text
+  user                User             @relation(fields: [user_id], references: [id])
+  instansi            Instansi         @relation(fields: [instansi_id], references: [id])
+  ambulance           Ambulance        @relation(fields: [ambulance_id], references: [id])
+  created_at          DateTime         @default(now())
+
+  @@map("responses")
+}
+
+model Queue {
+  id                  Int              @id @default(autoincrement())
+  user_id             Int
+  doctor_id           Int
+  schedule_id         Int
+  status              Boolean
+  description         String           @db.Text
+  lab                 Lab[]
+  user                User             @relation(fields: [user_id], references: [id])
+  doctor              Doctor           @relation(fields: [doctor_id], references: [id])
+  schedule            Schedule         @relation(fields: [schedule_id], references: [id])
+  created_at          DateTime         @default(now())
+
+  @@map("queues")
+}
+
+
+model Lab {
+  id                  Int              @id  @default(autoincrement())
+  queue_id            Int 
+  user_id             Int
+  doctor_id           Int
+  title               String           @db.VarChar(50)
+  complaint           String           @db.Text
+  diagnosis           String           @db.Text
+  notes               String           @db.Text
+  document            String      
+  user                User             @relation(fields: [user_id], references: [id]) 
+  doctor              Doctor           @relation(fields: [doctor_id], references: [id])
+  queue               Queue            @relation(fields: [queue_id], references: [id])
+  created_at          DateTime         @default(now())
+
+  @@map("labs")
+}
+
+
+enum ScheduleType{
+  REGULER
+  DARING
+  HOMECARE
+}
+
+enum RoleType {
+  USER
+  DOCTOR
+  ADMIN
+  INSTANSI
+}
+
+enum LevelType{
+  REGULAR
+  EMERGENCY
 }
