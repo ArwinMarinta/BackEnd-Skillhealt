@@ -3,6 +3,8 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import dotenv from "dotenv";
 import morgan from "morgan";
+import { ErrorMiddleware } from "./middleware/error_middleware";
+import authRoute from "./feature/auth/authRoute";
 
 dotenv.config();
 const app: Express = express();
@@ -16,5 +18,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.get("/", (req, res) => {
   res.send("Hello World");
 });
+
+app.use("/auth", authRoute);
+
+app.use(ErrorMiddleware.notFound);
+app.use(ErrorMiddleware.returnError);
 
 export default app;
