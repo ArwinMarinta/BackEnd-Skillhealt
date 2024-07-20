@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import morgan from "morgan";
 import { ErrorMiddleware } from "./middleware/error_middleware";
 import authRoute from "./feature/auth/authRoute";
+import specialistRoute from "./feature/spectialist/specialistRoute";
 
 dotenv.config();
 const app: Express = express();
@@ -20,6 +21,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/auth", authRoute);
+app.use("/specialist", specialistRoute);
 
 app.use(ErrorMiddleware.notFound);
 app.use(ErrorMiddleware.returnError);

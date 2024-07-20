@@ -31,3 +31,42 @@ export type AuthType = {
   password: string;
   role_id: number;
 };
+
+export type RegisterDoctorRequest = {
+  email: string;
+  password: string;
+  spesialis_id: number;
+  instansi_id: number;
+  name: string;
+  phone_number: string;
+  registration_certificate: string;
+  experience: string;
+  education: string;
+  image_url: string;
+  description: string;
+  status: boolean;
+};
+
+export type RegisterDoctorResponse = {
+  email: string;
+  name: string;
+  phone_number: string;
+  registration_certificate: string;
+};
+
+export type RegisterInstansiRequest = {
+  email: string;
+  password: string;
+  name: string;
+  address: string;
+  phone_number: string;
+  image_url: string;
+};
+
+export type RegisterInstasiResponse = {
+  email: string;
+  name: string;
+  address: string;
+  phone_number: string;
+  image_url: string;
+};
