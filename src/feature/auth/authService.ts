@@ -48,11 +48,26 @@ export class AuthService {
       throw new ErrorResponse("user not found", 404, ["user"], "wrong email or password");
     }
 
-    const token = jwt.sign({ id: user.id, Role: request.role_id }, process.env.JWT_KEY!, {
+    const role = await prisma.role.findFirst({
+      where: {
+        id: request.role_id,
+      },
+    });
+
+    if (!role) {
+      throw new ErrorResponse("Role Not Found", 404, ["role"], "role not found");
+    }
+
+    const token = jwt.sign({ id: user?.id, Role: role.name }, process.env.JWT_KEY!, {
       expiresIn: "7d",
     });
 
-    return { token };
+    const data = {
+      token: token,
+      role: role.name,
+    };
+
+    return data;
   }
 
   static async registerUser({

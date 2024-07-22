@@ -1,6 +1,5 @@
 import { Router } from "express";
 import { AuthContoller } from "./authController";
-import { deflate } from "zlib";
 
 const authRoute: Router = Router();
 
