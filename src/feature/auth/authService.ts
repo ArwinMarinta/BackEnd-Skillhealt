@@ -13,7 +13,7 @@ import { Prisma } from "@prisma/client";
 import { ErrorResponse } from "../../models/error_response";
 import jwt from "jsonwebtoken";
 import { hashPassword, comparePassword, createJwt } from "../../utils/format";
-import { connect } from "http2";
+import { findUser, findDoctor, findInstansi } from "../../utils/find_aktor";
 
 export class AuthService {
   static async login({ email, password }: LoginRequest): Promise<LoginResponse> {
@@ -38,14 +38,22 @@ export class AuthService {
       );
     }
 
-    const user = await prisma.user.findFirst({
-      where: {
-        auth_id: request.id,
-      },
-    });
+    let aktor: any;
 
-    if (!user) {
-      throw new ErrorResponse("user not found", 404, ["user"], "wrong email or password");
+    aktor = await findUser(request.id);
+    if (!aktor) {
+      aktor = await findDoctor(request.id);
+      if (!aktor) {
+        aktor = await findInstansi(request.id);
+        if (!aktor) {
+          throw new ErrorResponse(
+            "aktor not found",
+            404,
+            ["user, doctor, instansi"],
+            "aktor not found"
+          );
+        }
+      }
     }
 
     const role = await prisma.role.findFirst({
@@ -58,7 +66,7 @@ export class AuthService {
       throw new ErrorResponse("Role Not Found", 404, ["role"], "role not found");
     }
 
-    const token = jwt.sign({ id: user?.id, Role: role.name }, process.env.JWT_KEY!, {
+    const token = jwt.sign({ id: aktor?.id, role: role.name }, process.env.JWT_KEY!, {
       expiresIn: "7d",
     });
 

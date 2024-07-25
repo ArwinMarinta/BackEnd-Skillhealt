@@ -1,6 +1,5 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import { errorHandler } from "./error_handler";
 
 const genSalt = bcrypt.genSaltSync(10);
 

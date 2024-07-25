@@ -7,6 +7,8 @@ import { ErrorMiddleware } from "./middleware/error_middleware";
 import authRoute from "./feature/auth/authRoute";
 import specialistRoute from "./feature/spectialist/specialistRoute";
 import ambulanceRoute from "./feature/ambulance/ambulanceRoute";
+import disscussionRoute from "./feature/forum/disscussion/disscussionRoute";
+import commentRoute from "./feature/forum/commet/commentRoute";
 
 dotenv.config();
 const app: Express = express();
@@ -24,6 +26,8 @@ app.get("/", (req, res) => {
 app.use("/auth", authRoute);
 app.use("/specialist", specialistRoute);
 app.use("/ambulance", ambulanceRoute);
+app.use("/disscussion", disscussionRoute);
+app.use("/comment", commentRoute);
 
 app.use(ErrorMiddleware.notFound);
 app.use(ErrorMiddleware.returnError);
